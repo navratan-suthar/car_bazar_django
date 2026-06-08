@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}Manage Cars — CarBazar Dashboard{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header"><i class="bi bi-speedometer2 me-2"></i>Dashboard</div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'cars:dashboard' %}" class="sidebar-link"><i class="bi bi-grid-fill"></i>Overview</a>
+      <a href="{% url 'cars:dashboard_cars' %}" class="sidebar-link active"><i class="bi bi-car-front-fill"></i>Manage Cars</a>
+      <a href="{% url 'cars:dashboard_brands' %}" class="sidebar-link"><i class="bi bi-award-fill"></i>Brands</a>
+      <a href="{% url 'cars:dashboard_categories' %}" class="sidebar-link"><i class="bi bi-tag-fill"></i>Categories</a>
+      <a href="{% url 'cars:create' %}" class="sidebar-link"><i class="bi bi-plus-circle-fill"></i>New Listing</a>
+      <a href="/admin/" class="sidebar-link"><i class="bi bi-shield-lock-fill"></i>Django Admin</a>
+      <hr class="border-secondary" />
+      <a href="{% url 'cars:home' %}" class="sidebar-link"><i class="bi bi-house-fill"></i>Back to Site</a>
+    </nav>
+  </aside>
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <h2 class="dashboard-page-title">Manage Cars</h2>
+      <a href="{% url 'cars:create' %}" class="btn btn-primary rounded-pill btn-sm"><i class="bi bi-plus me-1"></i>New Car</a>
+    </div>
+
+    <!-- Search/Filter -->
+    <form method="get" class="dash-card p-3 mb-4 d-flex gap-2 flex-wrap align-items-end">
+      <div class="flex-grow-1">
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search cars..." />
+      </div>
+      <div>
+        <select name="status" class="form-select">
+          <option value="">All Status</option>
+          <option value="available" {% if status_filter == 'available' %}selected{% endif %}>Available</option>
+          <option value="sold" {% if status_filter == 'sold' %}selected{% endif %}>Sold</option>
+          <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary rounded-pill"><i class="bi bi-funnel me-1"></i>Filter</button>
+      <a href="{% url 'cars:dashboard_cars' %}" class="btn btn-outline-secondary rounded-pill">Reset</a>
+    </form>
+
+    <div class="dash-card">
+      <div class="table-responsive">
+        <table class="table table-dark table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Car</th><th>Brand</th><th>Price</th><th>Fuel</th><th>Status</th><th>Views</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for car in page_obj %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  {% if car.main_image %}
+                  <img src="{{ car.main_image.url }}" style="width:40px;height:30px;object-fit:cover;border-radius:4px;" />
+                  {% endif %}
+                  <div>
+                    <div class="fw-semibold small">{{ car.title|truncatechars:25 }}</div>
+                    <div class="text-muted" style="font-size:.75rem;">{{ car.year }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>{{ car.brand.name }}</td>
+              <td class="text-success fw-semibold">{{ car.formatted_price }}</td>
+              <td>{{ car.get_fuel_type_display }}</td>
+              <td>
+                <span class="badge bg-{% if car.status == 'available' %}success{% elif car.status == 'sold' %}secondary{% else %}warning text-dark{% endif %}">
+                  {{ car.get_status_display }}
+                </span>
+              </td>
+              <td>{{ car.views_count }}</td>
+              <td>
+                <div class="d-flex gap-1">
+                  <a href="{{ car.get_absolute_url }}" class="btn btn-sm btn-outline-info rounded" title="View"><i class="bi bi-eye"></i></a>
+                  <a href="{% url 'cars:update' car.pk %}" class="btn btn-sm btn-outline-warning rounded" title="Edit"><i class="bi bi-pencil"></i></a>
+                  {% if car.status == 'pending' %}
+                  <form method="post" action="{% url 'cars:approve_car' car.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-success rounded" title="Approve"><i class="bi bi-check-lg"></i></button>
+                  </form>
+                  {% endif %}
+                  {% if car.status == 'available' %}
+                  <form method="post" action="{% url 'cars:reject_car' car.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-warning rounded" title="Set Pending"><i class="bi bi-pause-fill"></i></button>
+                  </form>
+                  {% endif %}
+                  <form method="post" action="{% url 'cars:delete' car.pk %}" class="d-inline" onsubmit="return confirm('Delete this car?')">
+                    {% csrf_token %}
+                    <button class="btn btn-sm btn-outline-danger rounded" title="Delete"><i class="bi bi-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7" class="text-center text-muted py-4">No cars found</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% if page_obj.has_other_pages %}
+      <div class="p-3 d-flex justify-content-center">
+        <ul class="pagination pagination-modern mb-0">
+          {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&q={{ q }}&status={{ status_filter }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+          {% for num in page_obj.paginator.page_range %}{% if page_obj.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}&q={{ q }}&status={{ status_filter }}">{{ num }}</a></li>{% endif %}{% endfor %}
+          {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&q={{ q }}&status={{ status_filter }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+        </ul>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

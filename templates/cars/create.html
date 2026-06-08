@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}List a Car — CarBazar{% endblock %}
+
+{% block content %}
+<div class="page-header-simple">
+  <div class="container">
+    <h1 class="page-title"><i class="bi bi-plus-circle me-2 text-primary"></i>List Your Car</h1>
+    <p class="page-subtitle text-muted">Fill in the details below to create your listing</p>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <form method="post" enctype="multipart/form-data" id="carForm" novalidate>
+        {% csrf_token %}
+
+        <!-- Basic Info -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <i class="bi bi-info-circle me-2 text-primary"></i>Basic Information
+          </div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Car Title *</label>
+                {{ form.title }}
+                {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Brand *</label>
+                {{ form.brand }}
+                {% if form.brand.errors %}<div class="text-danger small mt-1">{{ form.brand.errors.0 }}</div>{% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Category</label>
+                {{ form.category }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Model *</label>
+                {{ form.model }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Year *</label>
+                {{ form.year }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Details -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <i class="bi bi-speedometer2 me-2 text-primary"></i>Vehicle Details
+          </div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Fuel Type *</label>
+                {{ form.fuel_type }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Transmission *</label>
+                {{ form.transmission }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Mileage (km) *</label>
+                {{ form.mileage }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Price (₹) *</label>
+                {{ form.price }}
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Location *</label>
+                {{ form.location }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Status</label>
+                {{ form.status }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <i class="bi bi-card-text me-2 text-primary"></i>Description
+          </div>
+          <div class="form-card-body">
+            <label class="form-label fw-semibold">Description *</label>
+            {{ form.description }}
+          </div>
+        </div>
+
+        <!-- Images -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <i class="bi bi-images me-2 text-primary"></i>Images
+          </div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Main Image *</label>
+                {{ form.main_image }}
+                <div id="mainImgPreview" class="mt-2"></div>
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Gallery Images <small class="text-muted">(optional, multiple)</small></label>
+                {{ image_form.images }}
+                <div id="galleryPreview" class="mt-2 d-flex flex-wrap gap-2"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="form-card mb-4">
+          <div class="form-card-header">
+            <i class="bi bi-telephone me-2 text-primary"></i>Contact Information
+          </div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Phone</label>
+                {{ form.contact_phone }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Email</label>
+                {{ form.contact_email }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5">
+            <i class="bi bi-check-circle me-2"></i>Create Listing
+          </button>
+          <a href="{% url 'cars:list' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Main image preview
+document.querySelector('[name="main_image"]').addEventListener('change', function(e) {
+  var preview = document.getElementById('mainImgPreview');
+  preview.innerHTML = '';
+  if (e.target.files[0]) {
+    var img = document.createElement('img');
+    img.src = URL.createObjectURL(e.target.files[0]);
+    img.classList.add('img-preview-single');
+    preview.appendChild(img);
+  }
+});
+
+// Gallery preview
+document.querySelector('[name="images"]').addEventListener('change', function(e) {
+  var preview = document.getElementById('galleryPreview');
+  preview.innerHTML = '';
+  for (var file of e.target.files) {
+    var img = document.createElement('img');
+    img.src = URL.createObjectURL(file);
+    img.classList.add('img-preview-thumb');
+    preview.appendChild(img);
+  }
+});
+</script>
+{% endblock %}

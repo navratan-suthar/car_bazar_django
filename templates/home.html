@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CarBazar — India's #1 Car Marketplace{% endblock %}
+
+{% block content %}
+
+<!-- HERO SECTION -->
+<section class="hero-section">
+  <div class="hero-bg-animation">
+    <div class="hero-circle c1"></div>
+    <div class="hero-circle c2"></div>
+    <div class="hero-circle c3"></div>
+  </div>
+  <div class="container hero-content">
+    <div class="row align-items-center min-vh-75">
+      <div class="col-lg-7">
+        <div class="hero-badge mb-3">
+          <i class="bi bi-shield-check-fill me-2 text-success"></i>
+          <span>{{ total_cars }}+ Verified Listings</span>
+        </div>
+        <h1 class="hero-title">Find Your <span class="gradient-text">Dream Car</span><br>at the Best Price</h1>
+        <p class="hero-subtitle">Browse thousands of verified car listings from trusted sellers across India. Buy or sell with confidence.</p>
+
+        <!-- Search Bar -->
+        <form action="{% url 'cars:list' %}" method="get" class="hero-search-form">
+          <div class="search-wrapper">
+            <div class="search-icon">
+              <i class="bi bi-search"></i>
+            </div>
+            <input type="text" name="q" class="search-input" placeholder="Search by brand, model, or keyword..." autocomplete="off" />
+            <button type="submit" class="search-btn">
+              <span>Search</span>
+              <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+          </div>
+        </form>
+
+        <!-- Quick Filters -->
+        <div class="hero-filters mt-3 d-flex flex-wrap gap-2">
+          <a href="{% url 'cars:list' %}?fuel_type=electric" class="filter-pill"><i class="bi bi-lightning-fill text-warning me-1"></i>Electric</a>
+          <a href="{% url 'cars:list' %}?fuel_type=petrol" class="filter-pill"><i class="bi bi-droplet-fill text-danger me-1"></i>Petrol</a>
+          <a href="{% url 'cars:list' %}?fuel_type=diesel" class="filter-pill"><i class="bi bi-fuel-pump-fill text-info me-1"></i>Diesel</a>
+          <a href="{% url 'cars:list' %}?transmission=automatic" class="filter-pill"><i class="bi bi-gear-fill me-1"></i>Automatic</a>
+          {% if request.user.is_staff %}
+          <a href="{% url 'cars:create' %}" class="filter-pill" style="border-color:rgba(99,102,241,0.4);color:var(--primary-light);"><i class="bi bi-plus-circle me-1"></i>Add Car</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-lg-5 d-none d-lg-flex justify-content-center align-items-center">
+        <div class="hero-car-illustration">
+          <div class="car-glow"></div>
+          <i class="bi bi-car-front-fill hero-car-icon"></i>
+          <div class="floating-badge badge-1"><i class="bi bi-star-fill text-warning me-1"></i>Top Rated</div>
+          <div class="floating-badge badge-2"><i class="bi bi-shield-check me-1 text-success"></i>Verified</div>
+          <div class="floating-badge badge-3"><i class="bi bi-tag-fill me-1 text-primary"></i>Best Price</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Strip -->
+  <div class="stats-strip">
+    <div class="container">
+      <div class="row g-0">
+        <div class="col-6 col-md-3">
+          <div class="stat-strip-item">
+            <i class="bi bi-car-front-fill stat-strip-icon"></i>
+            <div>
+              <div class="stat-strip-number">{{ total_cars }}+</div>
+              <div class="stat-strip-label">Cars Listed</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-strip-item">
+            <i class="bi bi-award-fill stat-strip-icon"></i>
+            <div>
+              <div class="stat-strip-number">{{ total_brands }}+</div>
+              <div class="stat-strip-label">Brands</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-strip-item">
+            <i class="bi bi-geo-alt-fill stat-strip-icon"></i>
+            <div>
+              <div class="stat-strip-number">50+</div>
+              <div class="stat-strip-label">Cities</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="stat-strip-item">
+            <i class="bi bi-shield-check-fill stat-strip-icon"></i>
+            <div>
+              <div class="stat-strip-number">100%</div>
+              <div class="stat-strip-label">Verified</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED CARS -->
+{% if featured_cars %}
+<section class="section-padding">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">⭐ Featured</div>
+      <h2 class="section-title">Featured <span class="gradient-text">Listings</span></h2>
+      <p class="section-subtitle">Hand-picked premium cars from trusted sellers</p>
+    </div>
+    <div class="row g-4">
+      {% for car in featured_cars %}
+      <div class="col-lg-4 col-md-6">
+        {% include 'cars/_car_card.html' with car=car %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- BROWSE BY BRAND -->
+{% if brands %}
+<section class="section-padding section-dark">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-badge">🚗 Brands</div>
+      <h2 class="section-title">Browse by <span class="gradient-text">Brand</span></h2>
+      <p class="section-subtitle">Find your favorite brand from our extensive collection</p>
+    </div>
+    <div class="brands-grid">
+      {% for brand in brands %}
+      <a href="{% url 'cars:brand_cars' brand.slug %}" class="brand-card">
+        {% if brand.logo %}
+        <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="brand-logo-img" />
+        {% else %}
+        <div class="brand-logo-placeholder">
+          <i class="bi bi-car-front-fill"></i>
+        </div>
+        {% endif %}
+        <span class="brand-card-name">{{ brand.name }}</span>
+        <span class="brand-card-count">{{ brand.cars.count }} cars</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- RECENT CARS -->
+<section class="section-padding">
+  <div class="container">
+    <div class="section-header d-flex justify-content-between align-items-end flex-wrap gap-3">
+      <div>
+        <div class="section-badge">🔥 New</div>
+        <h2 class="section-title mb-0">Recent <span class="gradient-text">Listings</span></h2>
+      </div>
+      <a href="{% url 'cars:list' %}" class="btn btn-outline-primary rounded-pill px-4">
+        View All Cars <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
+    <div class="row g-4 mt-1">
+      {% for car in recent_cars %}
+      <div class="col-lg-3 col-md-6">
+        {% include 'cars/_car_card.html' with car=car %}
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-car-front display-1 text-muted opacity-25"></i>
+        <h4 class="mt-3 text-muted">No cars listed yet</h4>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CTA SECTION -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-card">
+      <div class="cta-glow"></div>
+      <div class="row align-items-center">
+        <div class="col-lg-7">
+          {% if request.user.is_staff %}
+          <h2 class="cta-title">Ready to Add a New Car?</h2>
+          <p class="cta-subtitle">Add a listing to reach thousands of potential buyers. Simple, fast, and easy!</p>
+          <div class="d-flex flex-wrap gap-3 mt-4">
+            <a href="{% url 'cars:create' %}" class="btn btn-light btn-lg rounded-pill px-4">
+              <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Add a Car Listing
+            </a>
+            <a href="{% url 'cars:dashboard' %}" class="btn btn-outline-light btn-lg rounded-pill px-4">
+              <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+          </div>
+          {% else %}
+          <h2 class="cta-title">Find Your Dream Car Today</h2>
+          <p class="cta-subtitle">Browse thousands of verified listings from trusted sellers across India. Search, filter, and connect directly.</p>
+          <div class="d-flex flex-wrap gap-3 mt-4">
+            <a href="{% url 'cars:list' %}" class="btn btn-light btn-lg rounded-pill px-4">
+              <i class="bi bi-search me-2 text-primary"></i>Browse All Cars
+            </a>
+          </div>
+          {% endif %}
+        </div>
+        <div class="col-lg-5 text-center d-none d-lg-block">
+          <i class="bi bi-car-front-fill cta-icon"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Browse Cars — CarBazar{% endblock %}
+
+{% block content %}
+<div class="page-header-simple">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div>
+        <h1 class="page-title">Browse Cars</h1>
+        <p class="page-subtitle text-muted mb-0">{{ total_results }} car{{ total_results|pluralize }} found</p>
+      </div>
+      {% if request.user.is_staff %}
+      <a href="{% url 'cars:create' %}" class="btn btn-primary rounded-pill px-4">
+        <i class="bi bi-plus-lg me-2"></i>List a Car
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="row g-4">
+    <!-- FILTER SIDEBAR -->
+    <div class="col-lg-3">
+      <div class="filter-sidebar sticky-top" style="top: 80px;">
+        <div class="filter-header">
+          <h5 class="mb-0"><i class="bi bi-funnel-fill me-2"></i>Filters</h5>
+          <a href="{% url 'cars:list' %}" class="text-muted small">Clear all</a>
+        </div>
+        <form method="get" action="{% url 'cars:list' %}" id="filterForm">
+          <div class="filter-body">
+
+            <!-- Search -->
+            <div class="filter-group">
+              <label class="filter-label">Search</label>
+              <div class="input-group">
+                <span class="input-group-text border-end-0 bg-transparent">
+                  <i class="bi bi-search text-muted"></i>
+                </span>
+                <input type="text" name="q" value="{{ form.q.value|default:'' }}" class="form-control border-start-0" placeholder="Brand, model..." />
+              </div>
+            </div>
+
+            <!-- Brand -->
+            <div class="filter-group">
+              <label class="filter-label">Brand</label>
+              {{ form.brand }}
+            </div>
+
+            <!-- Category -->
+            <div class="filter-group">
+              <label class="filter-label">Category</label>
+              {{ form.category }}
+            </div>
+
+            <!-- Fuel Type -->
+            <div class="filter-group">
+              <label class="filter-label">Fuel Type</label>
+              {{ form.fuel_type }}
+            </div>
+
+            <!-- Transmission -->
+            <div class="filter-group">
+              <label class="filter-label">Transmission</label>
+              {{ form.transmission }}
+            </div>
+
+            <!-- Price Range -->
+            <div class="filter-group">
+              <label class="filter-label">Price Range (₹)</label>
+              <div class="row g-2">
+                <div class="col-6">{{ form.min_price }}</div>
+                <div class="col-6">{{ form.max_price }}</div>
+              </div>
+            </div>
+
+            <!-- Year Range -->
+            <div class="filter-group">
+              <label class="filter-label">Year</label>
+              <div class="row g-2">
+                <div class="col-6">{{ form.min_year }}</div>
+                <div class="col-6">{{ form.max_year }}</div>
+              </div>
+            </div>
+
+            <!-- Sort -->
+            <div class="filter-group">
+              <label class="filter-label">Sort By</label>
+              {{ form.ordering }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 rounded-pill">
+              <i class="bi bi-funnel me-2"></i>Apply Filters
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- CARS GRID -->
+    <div class="col-lg-9">
+      {% if page_obj %}
+      <div class="row g-4" id="carsGrid">
+        {% for car in page_obj %}
+        <div class="col-md-6 col-xl-4">
+          {% include 'cars/_car_card.html' with car=car %}
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- PAGINATION -->
+      {% if page_obj.has_other_pages %}
+      <nav class="mt-5 d-flex justify-content-center" aria-label="Car listings pagination">
+        <ul class="pagination pagination-modern">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+
+      {% else %}
+      <div class="empty-state">
+        <i class="bi bi-car-front empty-icon"></i>
+        <h3>No Cars Found</h3>
+        <p>Try adjusting your filters or search terms</p>
+        <a href="{% url 'cars:list' %}" class="btn btn-primary rounded-pill px-4">Clear Filters</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

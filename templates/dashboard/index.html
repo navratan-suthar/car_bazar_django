@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — CarBazar{% endblock %}
+{% block content %}
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="dashboard-sidebar">
+    <div class="sidebar-header">
+      <i class="bi bi-speedometer2 me-2"></i>Dashboard
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'cars:dashboard' %}" class="sidebar-link active"><i class="bi bi-grid-fill"></i>Overview</a>
+      <a href="{% url 'cars:dashboard_cars' %}" class="sidebar-link"><i class="bi bi-car-front-fill"></i>Manage Cars</a>
+      <a href="{% url 'cars:dashboard_brands' %}" class="sidebar-link"><i class="bi bi-award-fill"></i>Brands</a>
+      <a href="{% url 'cars:dashboard_categories' %}" class="sidebar-link"><i class="bi bi-tag-fill"></i>Categories</a>
+      <a href="{% url 'cars:create' %}" class="sidebar-link"><i class="bi bi-plus-circle-fill"></i>New Listing</a>
+      <a href="/admin/" class="sidebar-link"><i class="bi bi-shield-lock-fill"></i>Django Admin</a>
+      <hr class="border-secondary" />
+      <a href="{% url 'cars:home' %}" class="sidebar-link"><i class="bi bi-house-fill"></i>Back to Site</a>
+    </nav>
+  </aside>
+  <!-- Main -->
+  <div class="dashboard-main">
+    <div class="dashboard-topbar">
+      <h2 class="dashboard-page-title">Overview</h2>
+      <a href="{% url 'cars:create' %}" class="btn btn-primary rounded-pill btn-sm"><i class="bi bi-plus me-1"></i>New Car</a>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+      <div class="col-sm-6 col-xl-3">
+        <div class="dash-stat-card" style="--accent:#6366f1;">
+          <div class="dash-stat-icon"><i class="bi bi-car-front-fill"></i></div>
+          <div class="dash-stat-value">{{ total_cars }}</div>
+          <div class="dash-stat-label">Total Cars</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="dash-stat-card" style="--accent:#22c55e;">
+          <div class="dash-stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+          <div class="dash-stat-value">{{ available_cars }}</div>
+          <div class="dash-stat-label">Available</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="dash-stat-card" style="--accent:#f59e0b;">
+          <div class="dash-stat-icon"><i class="bi bi-award-fill"></i></div>
+          <div class="dash-stat-value">{{ total_brands }}</div>
+          <div class="dash-stat-label">Brands</div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-xl-3">
+        <div class="dash-stat-card" style="--accent:#ef4444;">
+          <div class="dash-stat-icon"><i class="bi bi-bag-check-fill"></i></div>
+          <div class="dash-stat-value">{{ sold_cars }}</div>
+          <div class="dash-stat-label">Sold</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Recent Listings -->
+      <div class="col-lg-8">
+        <div class="dash-card">
+          <div class="dash-card-header">
+            <h5 class="mb-0"><i class="bi bi-clock-history me-2"></i>Recent Listings</h5>
+            <a href="{% url 'cars:dashboard_cars' %}" class="btn btn-sm btn-outline-primary rounded-pill">View All</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+              <thead>
+                <tr><th>Car</th><th>Brand</th><th>Price</th><th>Status</th><th>Date</th></tr>
+              </thead>
+              <tbody>
+                {% for car in recent_cars %}
+                <tr>
+                  <td><a href="{{ car.get_absolute_url }}" class="text-white">{{ car.title|truncatechars:30 }}</a></td>
+                  <td>{{ car.brand.name }}</td>
+                  <td class="text-success fw-semibold">{{ car.formatted_price }}</td>
+                  <td><span class="badge bg-{% if car.status == 'available' %}success{% elif car.status == 'sold' %}secondary{% else %}warning text-dark{% endif %}">{{ car.get_status_display }}</span></td>
+                  <td class="text-muted small">{{ car.created_at|date:"d M" }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-4">No listings yet</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Brand Stats -->
+      <div class="col-lg-4">
+        <div class="dash-card h-100">
+          <div class="dash-card-header">
+            <h5 class="mb-0"><i class="bi bi-bar-chart-fill me-2"></i>Top Brands</h5>
+          </div>
+          <div class="p-3">
+            {% for brand in brand_stats %}
+            <div class="brand-stat-row">
+              <span class="brand-stat-name">{{ brand.name }}</span>
+              <div class="brand-stat-bar">
+                <div class="brand-stat-fill" style="width: {% if brand.car_count %}{{ brand.car_count|divisibleby:1 }}{% else %}0{% endif %}%; min-width: 20px;"></div>
+              </div>
+              <span class="brand-stat-count">{{ brand.car_count }}</span>
+            </div>
+            {% empty %}
+            <p class="text-muted text-center py-3">No brands yet</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

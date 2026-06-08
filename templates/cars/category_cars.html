@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}{{ category.name }} Cars — CarBazar{% endblock %}
+{% block content %}
+<div class="page-header-simple">
+  <div class="container">
+    <h1 class="page-title">
+      {% if category.icon %}<i class="bi {{ category.icon }} me-2 text-primary"></i>{% endif %}
+      {{ category.name }} Cars
+    </h1>
+    <p class="page-subtitle text-muted mb-0">{{ page_obj.paginator.count }} listing{{ page_obj.paginator.count|pluralize }}</p>
+  </div>
+</div>
+<div class="container py-4">
+  <div class="row g-4">
+    {% for car in page_obj %}
+    <div class="col-lg-4 col-md-6">{% include 'cars/_car_card.html' with car=car %}</div>
+    {% empty %}
+    <div class="col-12"><div class="empty-state"><i class="bi bi-car-front empty-icon"></i><h3>No Cars in {{ category.name }}</h3></div></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

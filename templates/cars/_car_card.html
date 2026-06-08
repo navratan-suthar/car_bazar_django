@@ -1,0 +1,42 @@
+{% load static %}
+<div class="car-card h-100">
+  {% if car.is_featured %}
+  <div class="featured-badge"><i class="bi bi-star-fill me-1"></i>Featured</div>
+  {% endif %}
+  <div class="car-card-img-wrapper">
+    {% if car.main_image %}
+    <img src="{{ car.main_image.url }}" alt="{{ car.title }}" class="car-card-img" loading="lazy" />
+    {% else %}
+    <div class="car-card-img-placeholder">
+      <i class="bi bi-car-front-fill"></i>
+    </div>
+    {% endif %}
+    <div class="car-card-overlay">
+      <a href="{{ car.get_absolute_url }}" class="btn btn-light btn-sm rounded-pill">
+        <i class="bi bi-eye me-1"></i>View Details
+      </a>
+    </div>
+    <div class="car-status-badge status-{{ car.status }}">{{ car.get_status_display }}</div>
+  </div>
+  <div class="car-card-body">
+    <div class="d-flex justify-content-between align-items-start mb-1">
+      <span class="car-brand-tag">{{ car.brand.name }}</span>
+      <span class="car-year-tag">{{ car.year }}</span>
+    </div>
+    <h5 class="car-card-title">
+      <a href="{{ car.get_absolute_url }}">{{ car.title }}</a>
+    </h5>
+    <div class="car-card-specs">
+      <span class="spec-item"><i class="bi bi-droplet-fill"></i>{{ car.get_fuel_type_display }}</span>
+      <span class="spec-item"><i class="bi bi-gear-fill"></i>{{ car.get_transmission_display }}</span>
+      <span class="spec-item"><i class="bi bi-speedometer2"></i>{{ car.formatted_mileage }}</span>
+    </div>
+    <div class="car-card-footer">
+      <div class="car-price">{{ car.formatted_price }}</div>
+      <div class="d-flex align-items-center gap-2">
+        <span class="car-location small"><i class="bi bi-geo-alt me-1"></i>{{ car.location|truncatechars:15 }}</span>
+        <span class="car-views small text-muted"><i class="bi bi-eye me-1"></i>{{ car.views_count }}</span>
+      </div>
+    </div>
+  </div>
+</div>

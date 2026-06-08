@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit {{ car.title }} — CarBazar{% endblock %}
+
+{% block content %}
+<div class="page-header-simple">
+  <div class="container">
+    <h1 class="page-title"><i class="bi bi-pencil-square me-2 text-warning"></i>Edit Listing</h1>
+    <p class="page-subtitle text-muted">{{ car.title }}</p>
+  </div>
+</div>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        <div class="form-card mb-4">
+          <div class="form-card-header"><i class="bi bi-info-circle me-2 text-primary"></i>Basic Information</div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label fw-semibold">Car Title *</label>
+                {{ form.title }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Brand *</label>
+                {{ form.brand }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Category</label>
+                {{ form.category }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Model *</label>
+                {{ form.model }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Year *</label>
+                {{ form.year }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card mb-4">
+          <div class="form-card-header"><i class="bi bi-speedometer2 me-2 text-primary"></i>Vehicle Details</div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Fuel Type</label>
+                {{ form.fuel_type }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Transmission</label>
+                {{ form.transmission }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Mileage (km)</label>
+                {{ form.mileage }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Price (₹)</label>
+                {{ form.price }}
+              </div>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Location</label>
+                {{ form.location }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Status</label>
+                {{ form.status }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card mb-4">
+          <div class="form-card-header"><i class="bi bi-card-text me-2 text-primary"></i>Description</div>
+          <div class="form-card-body">{{ form.description }}</div>
+        </div>
+
+        <div class="form-card mb-4">
+          <div class="form-card-header"><i class="bi bi-images me-2 text-primary"></i>Images</div>
+          <div class="form-card-body">
+            {% if car.main_image %}
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Current Main Image</label>
+              <div><img src="{{ car.main_image.url }}" style="height:120px;border-radius:8px;object-fit:cover;" /></div>
+            </div>
+            {% endif %}
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Replace Main Image</label>
+              {{ form.main_image }}
+            </div>
+            {% if car.images.all %}
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Current Gallery</label>
+              <div class="d-flex flex-wrap gap-2">
+                {% for img in car.images.all %}
+                <div class="gallery-edit-item">
+                  <img src="{{ img.image.url }}" style="height:80px;border-radius:6px;object-fit:cover;" />
+                  <form method="post" action="{% url 'cars:image_delete' img.pk %}" class="mt-1">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm w-100 rounded" onclick="return confirm('Remove this image?')">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </form>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+            <div>
+              <label class="form-label fw-semibold">Add More Gallery Images</label>
+              {{ image_form.images }}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card mb-4">
+          <div class="form-card-header"><i class="bi bi-telephone me-2 text-primary"></i>Contact Information</div>
+          <div class="form-card-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Phone</label>
+                {{ form.contact_phone }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Email</label>
+                {{ form.contact_email }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-warning btn-lg rounded-pill px-5 text-dark fw-bold">
+            <i class="bi bi-check-circle me-2"></i>Save Changes
+          </button>
+          <a href="{{ car.get_absolute_url }}" class="btn btn-outline-secondary btn-lg rounded-pill px-4">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
