@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+import cloudinary
 
 
 try:
@@ -34,6 +35,8 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     # Local
     'apps.cars',
+    "cloudinary",
+    "cloudinary_storage",
 ]
 
 MIDDLEWARE = [
@@ -104,11 +107,11 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Django 4.2+ / 6.0 uses STORAGES instead of STATICFILES_STORAGE
 STORAGES = {
-    'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
-    'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
 
@@ -145,3 +148,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Pagination
 PAGINATE_BY = 9
 ALLOWED_HOSTS = ['*']
+
+cloudinary.config(
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+)
