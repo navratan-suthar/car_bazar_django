@@ -42,9 +42,6 @@
           <a href="{% url 'cars:list' %}?fuel_type=petrol" class="filter-pill"><i class="bi bi-droplet-fill text-danger me-1"></i>Petrol</a>
           <a href="{% url 'cars:list' %}?fuel_type=diesel" class="filter-pill"><i class="bi bi-fuel-pump-fill text-info me-1"></i>Diesel</a>
           <a href="{% url 'cars:list' %}?transmission=automatic" class="filter-pill"><i class="bi bi-gear-fill me-1"></i>Automatic</a>
-          {% if request.user.is_staff %}
-          <a href="{% url 'cars:create' %}" class="filter-pill" style="border-color:rgba(99,102,241,0.4);color:var(--primary-light);"><i class="bi bi-plus-circle me-1"></i>Add Car</a>
-          {% endif %}
         </div>
       </div>
       <div class="col-lg-5 d-none d-lg-flex justify-content-center align-items-center">
@@ -190,9 +187,6 @@
           <h2 class="cta-title">Ready to Add a New Car?</h2>
           <p class="cta-subtitle">Add a listing to reach thousands of potential buyers. Simple, fast, and easy!</p>
           <div class="d-flex flex-wrap gap-3 mt-4">
-            <a href="{% url 'cars:create' %}" class="btn btn-light btn-lg rounded-pill px-4">
-              <i class="bi bi-plus-circle-fill me-2 text-primary"></i>Add a Car Listing
-            </a>
             <a href="{% url 'cars:dashboard' %}" class="btn btn-outline-light btn-lg rounded-pill px-4">
               <i class="bi bi-speedometer2 me-2"></i>Dashboard
             </a>

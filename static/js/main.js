@@ -2,7 +2,48 @@
  * CarBazar — Main JavaScript
  */
 
+/* ============================================================
+   THEME TOGGLE — runs immediately to prevent flash
+   ============================================================ */
+(function () {
+  var saved = localStorage.getItem('carbazar-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+})();
+
 document.addEventListener('DOMContentLoaded', function () {
+
+  /* ---------- Theme Toggle ---------- */
+  var btnDesktop  = document.getElementById('themeToggleBtnDesktop');
+  var btnMobile   = document.getElementById('themeToggleBtn');
+  var iconDesktop = document.getElementById('themeIcon');
+  var iconMobile  = document.getElementById('themeIconMobile');
+  var label       = document.getElementById('themeLabel');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('carbazar-theme', theme);
+    var isLight = theme === 'light';
+    var iconClass = isLight ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+    var labelText = isLight ? 'Light' : 'Dark';
+    if (iconDesktop) iconDesktop.className = iconClass;
+    if (iconMobile)  iconMobile.className  = iconClass;
+    if (label) label.textContent = labelText;
+    // Update toggle track active state
+    [btnDesktop, btnMobile].forEach(function(b) {
+      if (b) b.classList.toggle('is-light', isLight);
+    });
+  }
+
+  function toggle() {
+    var current = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(current === 'light' ? 'dark' : 'light');
+  }
+
+  // Init
+  applyTheme(localStorage.getItem('carbazar-theme') || 'dark');
+
+  if (btnDesktop) btnDesktop.addEventListener('click', toggle);
+  if (btnMobile)  btnMobile.addEventListener('click', toggle);
 
   // ============================================================
   // NAVBAR: scroll shadow

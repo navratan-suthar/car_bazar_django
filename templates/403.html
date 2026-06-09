@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Access Denied — CarBazar{% endblock %}
+{% block meta_description %}You do not have permission to access this page.{% endblock %}
+
+{% block content %}
+<div class="forbidden-page">
+  <div class="forbidden-bg">
+    <div class="forbidden-circle fc1"></div>
+    <div class="forbidden-circle fc2"></div>
+  </div>
+
+  <div class="container forbidden-content">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 col-md-8 text-center">
+
+        <!-- Lock icon -->
+        <div class="forbidden-icon-wrap mb-4">
+          <div class="forbidden-icon-ring">
+            <i class="bi bi-shield-lock-fill forbidden-icon"></i>
+          </div>
+        </div>
+
+        <!-- 403 badge -->
+        <div class="forbidden-code">403</div>
+
+        <h1 class="forbidden-title">Access Denied</h1>
+        <p class="forbidden-subtitle">
+          You don't have permission to access this page.<br>
+          This area is restricted to <strong>admin users only</strong>.
+        </p>
+
+        {% if not request.user.is_authenticated %}
+        <p class="text-muted small mb-4">
+          <i class="bi bi-info-circle me-1"></i>
+          Please sign in with an admin account to continue.
+        </p>
+        <a href="/admin/login/?next={{ requested_url|urlencode }}" class="btn btn-primary btn-lg rounded-pill px-5 me-2 mb-2">
+          <i class="bi bi-lock-fill me-2"></i>Admin Login
+        </a>
+        {% else %}
+        <p class="text-muted small mb-4">
+          <i class="bi bi-info-circle me-1"></i>
+          You are signed in as <strong>{{ request.user.username }}</strong>, but this account does not have admin privileges.
+        </p>
+        {% endif %}
+
+        <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+          <a href="{% url 'cars:home' %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-house me-2"></i>Go Home
+          </a>
+          <a href="{% url 'cars:list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+            <i class="bi bi-grid me-2"></i>Browse Cars
+          </a>
+          <button onclick="history.back()" class="btn btn-ghost rounded-pill px-4">
+            <i class="bi bi-arrow-left me-2"></i>Go Back
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.forbidden-page {
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 3rem 0;
+}
+.forbidden-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.forbidden-circle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+}
+.fc1 {
+  width: 400px; height: 400px;
+  background: #ef4444;
+  top: -80px; right: -80px;
+}
+.fc2 {
+  width: 300px; height: 300px;
+  background: #6366f1;
+  bottom: 0; left: -60px;
+}
+.forbidden-content { position: relative; z-index: 1; }
+.forbidden-icon-wrap {
+  display: flex;
+  justify-content: center;
+}
+.forbidden-icon-ring {
+  width: 100px; height: 100px;
+  border-radius: 50%;
+  background: rgba(239,68,68,0.1);
+  border: 2px solid rgba(239,68,68,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse403 2.5s ease-in-out infinite;
+}
+@keyframes pulse403 {
+  0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.25); }
+  50%      { box-shadow: 0 0 0 16px rgba(239,68,68,0); }
+}
+.forbidden-icon {
+  font-size: 2.8rem;
+  color: #ef4444;
+}
+.forbidden-code {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(5rem, 15vw, 9rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -4px;
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 60%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+.forbidden-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+.forbidden-subtitle {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  transition: var(--transition);
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.05);
+  border-color: rgba(255,255,255,0.15);
+  color: var(--text-primary);
+}
+[data-theme="light"] .fc1 { opacity: 0.07; }
+[data-theme="light"] .fc2 { opacity: 0.07; }
+[data-theme="light"] .btn-ghost {
+  border-color: rgba(0,0,0,0.12);
+  color: #475569;
+}
+[data-theme="light"] .btn-ghost:hover {
+  background: rgba(0,0,0,0.04);
+  color: #0f172a;
+}
+</style>
+{% endblock %}

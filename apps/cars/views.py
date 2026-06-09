@@ -1,13 +1,28 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
-from django.contrib.admin.views.decorators import staff_member_required
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from functools import wraps
 from .models import Car, Brand, Category, CarImage
 from .forms import CarForm, CarImageForm, CarSearchForm, BrandForm, CategoryForm
+
+
+def admin_required(view_func):
+    """
+    Decorator: allows only authenticated staff/superusers.
+    Returns a styled 403 Forbidden page for everyone else.
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_staff:
+            return view_func(request, *args, **kwargs)
+        return render(request, '403.html', {
+            'requested_url': request.path,
+        }, status=403)
+    return wrapper
 
 
 def home(request):
@@ -99,7 +114,7 @@ def car_detail(request, pk):
     return render(request, 'cars/detail.html', context)
 
 
-@staff_member_required
+@admin_required
 def car_create(request):
     if request.method == 'POST':
         form = CarForm(request.POST, request.FILES)
@@ -117,7 +132,7 @@ def car_create(request):
     return render(request, 'cars/create.html', {'form': form, 'image_form': image_form})
 
 
-@staff_member_required
+@admin_required
 def car_update(request, pk):
     car = get_object_or_404(Car, pk=pk)
     if request.method == 'POST':
@@ -135,7 +150,7 @@ def car_update(request, pk):
     return render(request, 'cars/update.html', {'form': form, 'car': car, 'image_form': image_form})
 
 
-@staff_member_required
+@admin_required
 def car_delete(request, pk):
     car = get_object_or_404(Car, pk=pk)
     if request.method == 'POST':
@@ -146,7 +161,7 @@ def car_delete(request, pk):
     return render(request, 'cars/confirm_delete.html', {'car': car})
 
 
-@staff_member_required
+@admin_required
 def car_image_delete(request, pk):
     image = get_object_or_404(CarImage, pk=pk)
     car_pk = image.car.pk
@@ -174,7 +189,7 @@ def category_cars(request, slug):
 
 
 # Dashboard views
-@staff_member_required
+@admin_required
 def dashboard(request):
     from django.db.models import Count
     total_cars = Car.objects.count()
@@ -198,7 +213,7 @@ def dashboard(request):
     return render(request, 'dashboard/index.html', context)
 
 
-@staff_member_required
+@admin_required
 def dashboard_cars(request):
     cars = Car.objects.select_related('brand', 'category').order_by('-created_at')
     q = request.GET.get('q', '')
@@ -212,7 +227,7 @@ def dashboard_cars(request):
     return render(request, 'dashboard/cars.html', {'page_obj': page_obj, 'q': q, 'status_filter': status_filter})
 
 
-@staff_member_required
+@admin_required
 def dashboard_brands(request):
     brands = Brand.objects.all().order_by('name')
     if request.method == 'POST':
@@ -226,7 +241,7 @@ def dashboard_brands(request):
     return render(request, 'dashboard/brands.html', {'brands': brands, 'form': form})
 
 
-@staff_member_required
+@admin_required
 def dashboard_brand_delete(request, pk):
     brand = get_object_or_404(Brand, pk=pk)
     if request.method == 'POST':
@@ -235,7 +250,7 @@ def dashboard_brand_delete(request, pk):
     return redirect('cars:dashboard_brands')
 
 
-@staff_member_required
+@admin_required
 def dashboard_categories(request):
     categories = Category.objects.all().order_by('name')
     if request.method == 'POST':
@@ -249,7 +264,7 @@ def dashboard_categories(request):
     return render(request, 'dashboard/categories.html', {'categories': categories, 'form': form})
 
 
-@staff_member_required
+@admin_required
 def dashboard_category_delete(request, pk):
     cat = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':
@@ -258,7 +273,7 @@ def dashboard_category_delete(request, pk):
     return redirect('cars:dashboard_categories')
 
 
-@staff_member_required
+@admin_required
 def approve_car(request, pk):
     car = get_object_or_404(Car, pk=pk)
     if request.method == 'POST':
@@ -268,7 +283,7 @@ def approve_car(request, pk):
     return redirect('cars:dashboard_cars')
 
 
-@staff_member_required
+@admin_required
 def reject_car(request, pk):
     car = get_object_or_404(Car, pk=pk)
     if request.method == 'POST':
