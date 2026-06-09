@@ -144,3 +144,4 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 # Pagination
 PAGINATE_BY = 9
+ALLOWED_HOSTS = ['*']
