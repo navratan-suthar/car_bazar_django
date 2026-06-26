@@ -1,12 +1,9 @@
 from django.urls import path
 from . import views
-from django.contrib.sitemaps.views import sitemap
-from apps.cars.sitemap import StaticViewSitemap
+
 
 app_name = 'cars'
-sitemaps = {
-    "static": StaticViewSitemap,
-}
+
 
 urlpatterns = [
     # Public
@@ -28,4 +25,5 @@ urlpatterns = [
     path('dashboard/categories/<int:pk>/delete/', views.dashboard_category_delete, name='dashboard_category_delete'),
     path('dashboard/cars/<int:pk>/approve/', views.approve_car, name='approve_car'),
     path('dashboard/cars/<int:pk>/reject/', views.reject_car, name='reject_car'),
+    
 ]
