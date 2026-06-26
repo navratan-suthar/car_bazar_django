@@ -1,7 +1,12 @@
 from django.urls import path
 from . import views
+from django.contrib.sitemaps.views import sitemap
+from apps.cars.sitemap import StaticViewSitemap
 
 app_name = 'cars'
+sitemaps = {
+    "static": StaticViewSitemap,
+}
 
 urlpatterns = [
     # Public
