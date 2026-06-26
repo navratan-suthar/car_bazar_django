@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
-
+from cloudinary.models import CloudinaryField
 
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True)
